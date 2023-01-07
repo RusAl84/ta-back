@@ -7,16 +7,16 @@ def divide():
 
 class Attacker:
     def __init__(self, ip, port):
-        self.ip = ip
-        self.ports = []
-        self.ports.append(port)
-        self.incomplete_ports = []
+        ip = ip
+        ports = []
+        ports.append(port)
+        incomplete_ports = []
 
     def add_port(self, port):
-        self.ports.append(port)
+        ports.append(port)
 
     def add_incomplete_port(self, port):
-        self.incomplete_ports.append(port)
+        incomplete_ports.append(port)
 
 
 def check_for_xmas(packets):
