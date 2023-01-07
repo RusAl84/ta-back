@@ -89,6 +89,7 @@ def print_TFIDF(self, records_count=10):
     df = df.sort_values('TF_IDF', ascending=False)
     print(df)
 
+
 def BERT_Summarizer(ttext):
     # https: // github.com / dmmiller612 / bert - extractive - summarizer
     # pip install bert-extractive-summarizer
@@ -101,7 +102,8 @@ def BERT_Summarizer(ttext):
     body = ttext
     model = Summarizer()
     # result = model(body, ratio=0.2)  # Specified with ratio
-    result = model(body, num_sentences=1)  # Will return 3 sentences 
+    result = model(body, num_sentences=1)  # Will return 3 sentences
+    result = remove_all(result)
     return result
 
 
@@ -111,36 +113,54 @@ def BERT_Summarizer(ttext):
 
 
 def Rake_Summarizer(ttext):
-    r = Rake(language="russian")
-    r.extract_keywords_from_text(ttext)
-    mas = r.get_ranked_phrases()
-    set2 = set()
-    for item in mas:
-        if not "nan" in str(item).replace(" nan ", " "):
-            set2.add(str(item).replace(" nan ", " "))
-    mas = list(set2)
-    return str(mas)
+    # r = Rake(language="russian")
+    # r.extract_keywords_from_text(ttext)
+    # mas = r.get_ranked_phrases()
+    # set2 = set()
+    # for item in mas:
+    #     if not "nan" in str(item).replace(" nan ", " "):
+    #         set2.add(str(item).replace(" nan ", " "))
+    # mas = list(set2)
+    # return str(mas)
+    # !pip install nlp-rake
+    # !pip install nltk
+    from nlp_rake import Rake
+    # import nltk
+    # from nltk.corpus import stopwords
+    # nltk.download ("stopwords")
+    stops = list(set(stopwords.words("russian")))
+
+    rake = Rake(stopwords=stops, max_words=3)
+    return rake.apply(ttext)[:1][0][0]
+
 
 def YakeSummarizer(ttext):
     # !pip install yake
-    extractor = yake.KeywordExtractor (
-        lan = "ru",     # язык
-        n = 3,          # максимальное количество слов в фразе
-        dedupLim = 0.3, # порог похожести слов
-        top = 1        # количество ключевых слов
+    extractor = yake.KeywordExtractor(
+        lan="ru",     # язык
+        n=3,          # максимальное количество слов в фразе
+        dedupLim=0.3,  # порог похожести слов
+        top=1        # количество ключевых слов
     )
     l = list(extractor.extract_keywords(ttext))
     return l[0][0]
- 
+
+
+def get_normal_form(morph, word):
+    p = morph.parse(word)[0]
+    return p.normal_form
+
 
 if __name__ == '__main__':
     data = "«Два самых важных дня в твоей жизни: день, когда ты появился на свет, и день, когда ты понял зачем!». — Марк Твен"
     t = remove_all(data)
     print(t)
     t = Rake_Summarizer(data)
-    print(t)    
+    print("Rake_Summarizer")
+    print(t)
     t = BERT_Summarizer(data)
+    print("BERT_Summarizer")
     print(t)
     t = YakeSummarizer(data)
+    print("YakeSummarizer")
     print(t)
-
