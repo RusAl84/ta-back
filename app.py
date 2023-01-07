@@ -31,56 +31,6 @@ def default():
     </html>
     '''
 
-
-# app.secret_key = "caircocoders-ednalan"
-
-# UPLOAD_FOLDER = 'uploads'
-# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-# app.config['MAX_CONTENT_LENGTH'] = 900 * 1024 * 1024
-
-# ALLOWED_EXTENSIONS = set(['json'])
-
-
-# def allowed_file(filename):
-#     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-# @app.route('/uploadae', methods=['POST'])
-# def uploadae():
-#     # check if the post request has the file part
-#     if 'files[]' not in request.files:
-#         resp = jsonify({'message': 'No file part in the request'})
-#         resp.status_code = 400
-#         return resp
-
-#     files = request.files.getlist('files[]')
-
-#     errors = {}
-#     success = False
-
-#     for file in files:
-#         if file and allowed_file(file.filename):
-#             filename = secure_filename(file.filename)
-#             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-#             success = True
-#         else:
-#             errors[file.filename] = 'File type is not allowed'
-
-#     if success and errors:
-#         errors['message'] = 'File(s) successfully uploaded'
-#         resp = jsonify(errors)
-#         resp.status_code = 500
-#         return resp
-#     if success:
-#         resp = jsonify({'message': 'Files successfully uploaded'})
-#         resp.status_code = 201
-#         return resp
-#     else:
-#         resp = jsonify(errors)
-#         resp.status_code = 500
-#         return resp
-
-
 @app.route('/uploads/<path:path>')
 def send_photo(path):
     return send_from_directory('uploads', path)
@@ -98,22 +48,7 @@ def uploadae():
         f.save(filename)
         text = conv.convertJsonMessages2text(filename)
     return text
-    # print(request)
 
-    # if request.method == 'POST':
-    #     f = request.files['File']
-    #     # filename = secure_filename(f.filename)
-    #     milliseconds = int(time.time() * 1000)
-    #     filename = f"./uploads/{milliseconds}.json"
-    #     f.save(filename)
-    #     text = conv.convertJsonMessages2text(filename)
-    #     str1 = text
-    #     print(text)
-    #     # from scan_detector import all_check
-    #     # str1 = all_check('1.pcap')
-    #     # print(str1)
-    #     # str1 += "<br> <a href=""javascript:history.back()"">Назад</a>"
-    #     return str1
 
 
 @app.route('/uploadsa', methods=['POST'])
