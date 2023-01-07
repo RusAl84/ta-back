@@ -9,11 +9,39 @@ import json
 from summarizer import Summarizer
 from rake_nltk import Metric, Rake
 import yake
+import convertQA
 
 
-def load_data(self, filename='data.txt'):
+
+def load_data( filename='data.txt'):
     with open(filename, "r", encoding='utf-8') as file:
         data = file.read()
+
+
+def data_proc( filename='data.txt'):
+    with open(filename, "r", encoding="UTF8") as file:
+        content = file.read()
+    messages = json.loads(content)
+    text = ""
+    proc_messages = []
+    for m in messages:
+        line = {}
+        line['date'] = convertQA.convertMs2String(m['date'])
+        text = m['text']
+        line['text'] = text
+        # line['remove_all']  = remove_all(data)
+        line['get_normal_form'] = get_normal_form(remove_all(data))
+        # line['Rake_Summarizer'] = Rake_Summarizer(data)
+        # line['YakeSummarizer'] = YakeSummarizer(data)
+        line['message_id'] = m['message_id']
+        line['user_id'] = m['user_id']
+        line['reply_message_id'] = m['reply_message_id']
+        proc_messages.append(line)
+    jsonstring = json.dumps(proc_messages)
+    print(jsonstring)
+    with open("proc_messages.json", "w", encoding="UTF8") as file:
+        file.write(jsonstring)    
+
 
 
 def remove_digit(data):
@@ -94,10 +122,6 @@ def BERT_Summarizer(ttext):
     # https: // github.com / dmmiller612 / bert - extractive - summarizer
     # pip install bert-extractive-summarizer
     # pip install ...etc
-    # model = Summarizer()
-    # result = model(ttext, min_length=1)
-    # full = ''.join(result)
-    # return full
     from summarizer import Summarizer
     body = ttext
     model = Summarizer()
@@ -113,15 +137,6 @@ def BERT_Summarizer(ttext):
 
 
 def Rake_Summarizer(ttext):
-    # r = Rake(language="russian")
-    # r.extract_keywords_from_text(ttext)
-    # mas = r.get_ranked_phrases()
-    # set2 = set()
-    # for item in mas:
-    #     if not "nan" in str(item).replace(" nan ", " "):
-    #         set2.add(str(item).replace(" nan ", " "))
-    # mas = list(set2)
-    # return str(mas)
     # !pip install nlp-rake
     # !pip install nltk
     from nlp_rake import Rake
@@ -146,21 +161,30 @@ def YakeSummarizer(ttext):
     return l[0][0]
 
 
-def get_normal_form(morph, word):
-    p = morph.parse(word)[0]
-    return p.normal_form
+def get_normal_form(words):
+    morph = pymorphy2.MorphAnalyzer()
+    result = []
+    for word in words.split():
+        p = morph.parse(word)[0]
+        result.append(p.normal_form)
+    return result
 
 
 if __name__ == '__main__':
     data = "«Два самых важных дня в твоей жизни: день, когда ты появился на свет, и день, когда ты понял зачем!». — Марк Твен"
-    t = remove_all(data)
-    print(t)
-    t = Rake_Summarizer(data)
-    print("Rake_Summarizer")
-    print(t)
-    t = BERT_Summarizer(data)
-    print("BERT_Summarizer")
-    print(t)
-    t = YakeSummarizer(data)
-    print("YakeSummarizer")
-    print(t)
+    # t = remove_all(data)
+    # print("remove_all")
+    # print(t)
+    # t = get_normal_form(remove_all(data))
+    # print("norm")
+    # print(t)
+    # t = Rake_Summarizer(data)
+    # print("Rake_Summarizer")
+    # print(t)
+    # # t = BERT_Summarizer(data)
+    # # print("BERT_Summarizer")
+    # # print(t)
+    # t = YakeSummarizer(data)
+    # print("YakeSummarizer")
+    # print(t)
+    data_proc("d:/ml/chat/andromedica.json")

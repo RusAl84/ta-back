@@ -17,5 +17,5 @@ def convertJsonMessages2text(filename):
 
 
 if __name__ == "__main__":
-    text = convertJsonMessages2text("d:/ml/chat/chat_dv.json")
+    text = convertJsonMessages2text("d:/ml/chat/andromedica.json")
     print(text)
