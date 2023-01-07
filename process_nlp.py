@@ -10,38 +10,117 @@ from summarizer import Summarizer
 from rake_nltk import Metric, Rake
 import yake
 import convertQA
+from pymystem3 import Mystem
 
-
-
-def load_data( filename='data.txt'):
+def load_data(filename='data.txt'):
     with open(filename, "r", encoding='utf-8') as file:
         data = file.read()
 
 
-def data_proc( filename='data.txt'):
+def data_proc(filename='data.txt'):
     with open(filename, "r", encoding="UTF8") as file:
         content = file.read()
     messages = json.loads(content)
     text = ""
+    count_messages = len(messages)
+    print(count_messages)
+    texts=[]
+    for m in messages:
+        text = m['text']
+        texts.append(remove_all_mas(text))
+    num = 0
+    ltexts = d2lemmatize(texts)
     proc_messages = []
     for m in messages:
         line = {}
-        line['date'] = convertQA.convertMs2String(m['date'])
+        line['date'] = m['date']
         text = m['text']
         line['text'] = text
-        # line['remove_all']  = remove_all(data)
-        line['get_normal_form'] = get_normal_form(remove_all(data))
+        line['remove_all']  = texts[num]
+        # print(str(texts[num]))
+        # print(text)
+        line['get_normal_form'] = ltexts[num]
+        # line['get_normal_form'] = get_normal_form(remove_all(data))
         # line['Rake_Summarizer'] = Rake_Summarizer(data)
         # line['YakeSummarizer'] = YakeSummarizer(data)
         line['message_id'] = m['message_id']
         line['user_id'] = m['user_id']
         line['reply_message_id'] = m['reply_message_id']
         proc_messages.append(line)
-    jsonstring = json.dumps(proc_messages)
-    print(jsonstring)
+        print(f"{num} / {count_messages}")
+        num += 1
+    
+    jsonstring = json.dumps(proc_messages,ensure_ascii=False)
+    # print(jsonstring)
     with open("proc_messages.json", "w", encoding="UTF8") as file:
-        file.write(jsonstring)    
+        file.write(jsonstring)
 
+def d2lemmatize(mas):
+    crazdelitel = " cr "
+    razdelitel = " br "
+    rwords = ""
+    row_num = 1;
+    # for item in mas:
+    #     # print(row_num)
+    #     row_num+=1
+    #     cwords = ""
+    #     for word in item:
+    #         if len(str(word)) > 3:
+    #             cwords = cwords + str(word) + razdelitel
+    #     if len(cwords)>1:
+    #         rwords = rwords + cwords + сrazdelitel
+    for item1 in mas:
+        cwords = ""
+        if type(item1) in (tuple, list):
+            for item2 in item1:
+                cwords = cwords + str(item2) + razdelitel
+        else:
+            item1 = item1.split()
+            for item2 in item1:
+                cwords = cwords + str(item2) + razdelitel
+        # print(cwords)
+        rwords = rwords + cwords + crazdelitel
+    m = Mystem()
+    # print(rwords)
+    lmas = m.lemmatize(rwords)
+    gmas = []
+    tmpword = ""
+    stroka = []
+    for word in lmas:
+        word = str(word)
+        if word == str.strip(razdelitel):
+            stroka.append(tmpword)
+            tmpword = ""
+        elif len(str(word)) > 3:
+            tmpword = tmpword + " " + word
+        elif word == str.strip(crazdelitel):
+            gmas.append(stroka)
+            stroka = []
+    # print(gmas)
+    return gmas
+
+
+def d1lemmatize(mas):
+    gmas = []
+    razdelitel = " br "
+    m = Mystem()
+    lwords = ""
+    for word in mas:
+        if len(str(word)) > 3:
+            lwords = lwords + word + razdelitel
+    # print(lwords)
+    # print(mas)
+    lmas = m.lemmatize(lwords)
+    # print(lmas)
+    tmpword = []
+    for word in lmas:
+        if word == str.strip(razdelitel):
+            gmas.append(tmpword)
+            tmpword = []
+        elif len(word) > 3:
+            tmpword.append(word)
+    # print(gmas)
+    return 
 
 
 def remove_digit(data):
@@ -97,10 +176,18 @@ def remove_all(data):
     data = remove_digit(data)
     data = remove_punctuation(data)
     data = remove_stopwords(data)
-    data = remove_short_words(data, length=1)
+    data = remove_short_words(data, length=3)
     data = remove_paragraf_to_lower(data)
     return data
 
+def remove_all_mas(data):
+    data = remove_digit(data)
+    data = remove_punctuation(data)
+    data = remove_stopwords(data)
+    data = remove_short_words(data, length=3)
+    data = remove_paragraf_to_lower(data)
+    data = data.split()
+    return data
 
 def print_TFIDF(self, records_count=10):
     tfIdfTransformer = TfidfVectorizer(ngram_range=(
@@ -172,6 +259,9 @@ def get_normal_form(words):
 
 if __name__ == '__main__':
     data = "«Два самых важных дня в твоей жизни: день, когда ты появился на свет, и день, когда ты понял зачем!». — Марк Твен"
+    # t=remove_all_mas(data)
+    # print(t)
+        
     # t = remove_all(data)
     # print("remove_all")
     # print(t)
