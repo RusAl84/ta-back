@@ -5,7 +5,7 @@ import os
 import time
 import convertQA as conv
 import urllib.request
-
+import process_nlp
 
 app = Flask(__name__)
 CORS(app)
@@ -49,6 +49,14 @@ def uploadae():
         text = conv.convertJsonMessages2text(filename)
     return text
 
+# получение сообщений
+@app.route("/get_pattern", methods=['POST'])
+def get_pattern(id):
+    msg = request.json
+    print(msg)
+    return process_nlp.get_pattern(msg['text'])
+    
+
 
 
 @app.route('/uploadsa', methods=['POST'])
@@ -66,6 +74,8 @@ def uploadsa():
         print(str1)
         str1 += "<br> <a href=""javascript:history.back()"">Назад</a>"
         return str1
+
+
 
 
 # отправка сообщений

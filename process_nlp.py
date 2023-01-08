@@ -12,6 +12,7 @@ import yake
 import convertQA
 from pymystem3 import Mystem
 
+
 def load_data(filename='data.txt'):
     with open(filename, "r", encoding='utf-8') as file:
         data = file.read()
@@ -24,7 +25,7 @@ def data_proc(filename='data.txt'):
     text = ""
     count_messages = len(messages)
     print(count_messages)
-    texts=[]
+    texts = []
     for m in messages:
         text = m['text']
         texts.append(remove_all_mas(text))
@@ -36,10 +37,10 @@ def data_proc(filename='data.txt'):
         line['date'] = m['date']
         text = m['text']
         line['text'] = text
-        line['remove_all']  = texts[num]
+        line['remove_all'] = texts[num]
         # print(str(texts[num]))
         # print(text)
-        line['get_normal_form'] = ltexts[num]
+        line['normal_form'] = ltexts[num]
         # line['get_normal_form'] = get_normal_form(remove_all(data))
         # line['Rake_Summarizer'] = Rake_Summarizer(data)
         # line['YakeSummarizer'] = YakeSummarizer(data)
@@ -49,17 +50,27 @@ def data_proc(filename='data.txt'):
         proc_messages.append(line)
         print(f"{num} / {count_messages}")
         num += 1
-    
-    jsonstring = json.dumps(proc_messages,ensure_ascii=False)
+
+    jsonstring = json.dumps(proc_messages, ensure_ascii=False)
     # print(jsonstring)
     with open("proc_messages.json", "w", encoding="UTF8") as file:
         file.write(jsonstring)
+
+def get_pattern(text):
+    line={}
+    line['text'] = text.strip()
+    line['remove_all'] = remove_all(text).strip()
+    line['normal_form'] = get_normal_form(remove_all(text)).strip()
+    line['Rake_Summarizer'] = Rake_Summarizer(text).strip()
+    line['YakeSummarizer'] = YakeSummarizer(text).strip()
+    line['BERT_Summarizer'] = BERT_Summarizer(text).strip()
+    return line
 
 def d2lemmatize(mas):
     crazdelitel = " cr "
     razdelitel = " br "
     rwords = ""
-    row_num = 1;
+    row_num = 1
     # for item in mas:
     #     # print(row_num)
     #     row_num+=1
@@ -120,7 +131,7 @@ def d1lemmatize(mas):
         elif len(word) > 3:
             tmpword.append(word)
     # print(gmas)
-    return 
+    return
 
 
 def remove_digit(data):
@@ -180,6 +191,7 @@ def remove_all(data):
     data = remove_paragraf_to_lower(data)
     return data
 
+
 def remove_all_mas(data):
     data = remove_digit(data)
     data = remove_punctuation(data)
@@ -188,6 +200,7 @@ def remove_all_mas(data):
     data = remove_paragraf_to_lower(data)
     data = data.split()
     return data
+
 
 def print_TFIDF(self, records_count=10):
     tfIdfTransformer = TfidfVectorizer(ngram_range=(
@@ -248,7 +261,7 @@ def YakeSummarizer(ttext):
     return l[0][0]
 
 
-def get_normal_form(words):
+def get_normal_form_mas(words):
     morph = pymorphy2.MorphAnalyzer()
     result = []
     for word in words.split():
@@ -257,11 +270,18 @@ def get_normal_form(words):
     return result
 
 
+def get_normal_form(words):
+    morph = pymorphy2.MorphAnalyzer()
+    p = morph.parse(words)[0]
+    return p.normal_form
+
+
 if __name__ == '__main__':
     data = "«Два самых важных дня в твоей жизни: день, когда ты появился на свет, и день, когда ты понял зачем!». — Марк Твен"
-    # t=remove_all_mas(data)
-    # print(t)
-        
+    # t = get_normal_form(remove_all(data))
+    t = get_pattern(data)
+    print(t)
+    
     # t = remove_all(data)
     # print("remove_all")
     # print(t)
@@ -277,4 +297,4 @@ if __name__ == '__main__':
     # t = YakeSummarizer(data)
     # print("YakeSummarizer")
     # print(t)
-    data_proc("d:/ml/chat/andromedica.json")
+    # data_proc("d:/ml/chat/andromedica.json")
