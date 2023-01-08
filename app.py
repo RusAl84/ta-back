@@ -31,6 +31,7 @@ def default():
     </html>
     '''
 
+
 @app.route('/uploads/<path:path>')
 def send_photo(path):
     return send_from_directory('uploads', path)
@@ -50,13 +51,21 @@ def uploadae():
     return text
 
 # получение сообщений
+
+
 @app.route("/get_pattern", methods=['POST'])
-def get_pattern(id):
+def get_pattern():
     msg = request.json
     print(msg)
-    return process_nlp.get_pattern(msg['text'])
-    
+    data = process_nlp.get_pattern(msg['text'])
+    str1 = str(f"Исходный текст: {data['text']} \n\n"
+               f"Очищенный текст: {data['remove_all']} \n\n"
+               f" Нормальная форма ключевых слов: {data['normal_form']} \n\n"
+               f" YakeSummarizer: {data['YakeSummarizer']} \n\n"
+               f" BERT_Summarizer: {data['BERT_Summarizer']} \n\n"
+               f" Rake_Summarizer: {data['Rake_Summarizer']} \n\n")
 
+    return str1
 
 
 @app.route('/uploadsa', methods=['POST'])
@@ -74,8 +83,6 @@ def uploadsa():
         print(str1)
         str1 += "<br> <a href=""javascript:history.back()"">Назад</a>"
         return str1
-
-
 
 
 # отправка сообщений
@@ -117,4 +124,4 @@ def GetMessage(id):
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")
-app.run(host="0.0.0.0")
+# app.run(host="0.0.0.0")
