@@ -275,6 +275,23 @@ def get_normal_form(words):
     p = morph.parse(words)[0]
     return p.normal_form
 
+def send2mongo(data):
+    # client = MongoClient('localhost', 27017)
+    client = MongoClient('23.111.202.59',
+                         username='root',
+                         password='MongoPAS1254!',
+                         authSource='admin',
+                         authMechanism='SCRAM-SHA-1')
+
+    db = client['RKNN']
+    collection = db.obrnadzor_vishee_vse_regioni_local
+    list_inn = []  # для наших инн с монго
+    # for post in collection.find():
+    #     # print( post)
+    #     inn = post["Сведения об образовательной организации или организации, осуществляющей обучение"]['ИНН']
+    #     print(inn)
+    #     list_inn.append(inn)
+    # dubl_inn = []
 
 if __name__ == '__main__':
     data = "«Два самых важных дня в твоей жизни: день, когда ты появился на свет, и день, когда ты понял зачем!». — Марк Твен"

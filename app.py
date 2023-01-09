@@ -6,6 +6,7 @@ import time
 import convertQA as conv
 import urllib.request
 import process_nlp
+import config as cfg
 
 app = Flask(__name__)
 CORS(app)
@@ -16,20 +17,6 @@ ListOfMessages = []
 @app.route('/')
 def dafault_route():
     return 'API'
-
-
-@app.route('/up')
-def default():
-    return '''
-    <html>
-    <body>
-        <form action = "http://localhost:5000/uploadsa" method = "POST" enctype = "multipart/form-data">
-            <input type = "file" name = "File" />
-            <input type = "submit" value = "Submit" />
-        </form>
-    </body>
-    </html>
-    '''
 
 
 @app.route('/uploads/<path:path>')
@@ -50,8 +37,6 @@ def uploadae():
         text = conv.convertJsonMessages2text(filename)
     return text
 
-# получение сообщений
-
 
 @app.route("/get_pattern", methods=['POST'])
 def get_pattern():
@@ -64,7 +49,6 @@ def get_pattern():
                f" YakeSummarizer: {data['YakeSummarizer']} \n\n"
                f" BERT_Summarizer: {data['BERT_Summarizer']} \n\n"
                f" Rake_Summarizer: {data['Rake_Summarizer']} \n\n")
-
     return str1
 
 
@@ -97,18 +81,6 @@ def SendMessage():
     print(
         f"Всего сообщений: {len(ListOfMessages)} Посланное сообщение: {msgtext}")
     return f"Сообщение отослано успешно. Всего сообщений: {len(ListOfMessages)} ", 200
-
-
-# отправка сообщений
-@app.route("/reverse", methods=['POST'])
-def reverse():
-    text = request.json
-    print(text)
-    text = str(text["text"])
-    reverseText = ""
-    for i in range(1, len(text) + 1):
-        reverseText += text[-1 * i]
-    return f"{reverseText}", 200
 
 
 # получение сообщений
