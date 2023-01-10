@@ -33,19 +33,24 @@ def add_data(data):
         jsonstring = json.dumps(content, ensure_ascii=False)
         with open(db_fileName, "w", encoding="UTF8") as file:
             file.write(jsonstring)
-    return data
+    return content
 
+def load_db():
+    import pathlib
+    path = pathlib.Path(db_fileName)
+    if path.exists():
+        with open(db_fileName, "r", encoding="UTF8") as file:
+            jsoncontent = file.read()
+        content = json.loads(jsoncontent)
+        return content
+    else:
+        return [{}]
+        
 def clear_db():
     import pathlib
     path = pathlib.Path(db_fileName)
     if path.exists():
         os.remove(db_fileName)
-        
-
-def load_data(filename='data.txt'):
-    with open(filename, "r", encoding='utf-8') as file:
-        data = file.read()
-
 
 def data_proc(filename):
     with open(filename, "r", encoding="UTF8") as file:

@@ -54,17 +54,27 @@ def get_pattern():
     print(str1)
     return data
 
+
 @app.route("/get_pattern_add", methods=['POST'])
 def get_pattern_add():
     msg = request.json
     print(msg)
-    process_nlp.add_data(msg)
-    return "ok get_pattern_add"
+    data = process_nlp.add_data(msg)
+    print()
+    print(data)
+    return data
+
 
 @app.route("/clear_db", methods=['get'])
 def clear_db():
     process_nlp.clear_db()
     return "ok clear_db"
+
+
+@app.route("/load_db", methods=['get'])
+def load_db():
+    data = process_nlp.load_db()
+    return data
 
 
 @app.route('/uploadsa', methods=['POST'])
