@@ -49,7 +49,22 @@ def get_pattern():
                f" YakeSummarizer: {data['YakeSummarizer']} \n\n"
                f" BERT_Summarizer: {data['BERT_Summarizer']} \n\n"
                f" Rake_Summarizer: {data['Rake_Summarizer']} \n\n")
-    return str1
+    # process_nlp.add_data(data)
+    data['print_text'] = str1
+    print(str1)
+    return data
+
+@app.route("/get_pattern_add", methods=['POST'])
+def get_pattern_add():
+    msg = request.json
+    print(msg)
+    process_nlp.add_data(msg)
+    return "ok get_pattern_add"
+
+@app.route("/clear_db", methods=['get'])
+def clear_db():
+    process_nlp.clear_db()
+    return "ok clear_db"
 
 
 @app.route('/uploadsa', methods=['POST'])

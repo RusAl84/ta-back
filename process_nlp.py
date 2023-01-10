@@ -11,14 +11,43 @@ from rake_nltk import Metric, Rake
 import yake
 import convertQA
 from pymystem3 import Mystem
+import os
 
+db_fileName = "./data_ae.json"
+
+
+def add_data(data):
+    import pathlib
+    path = pathlib.Path(db_fileName)
+    content = []
+    if path.exists():
+        with open(db_fileName, "r", encoding="UTF8") as file:
+            jsoncontent = file.read()
+        content = json.loads(jsoncontent)
+        content.append(data)
+        jsonstring = json.dumps(content, ensure_ascii=False)
+        with open(db_fileName, "w", encoding="UTF8") as file:
+            file.write(jsonstring)
+    else:
+        content.append(data)
+        jsonstring = json.dumps(content, ensure_ascii=False)
+        with open(db_fileName, "w", encoding="UTF8") as file:
+            file.write(jsonstring)
+    return data
+
+def clear_db():
+    import pathlib
+    path = pathlib.Path(db_fileName)
+    if path.exists():
+        os.remove(db_fileName)
+        
 
 def load_data(filename='data.txt'):
     with open(filename, "r", encoding='utf-8') as file:
         data = file.read()
 
 
-def data_proc(filename='data.txt'):
+def data_proc(filename):
     with open(filename, "r", encoding="UTF8") as file:
         content = file.read()
     messages = json.loads(content)
@@ -56,8 +85,9 @@ def data_proc(filename='data.txt'):
     with open("proc_messages.json", "w", encoding="UTF8") as file:
         file.write(jsonstring)
 
+
 def get_pattern(text):
-    line={}
+    line = {}
     line['text'] = text.strip()
     line['remove_all'] = remove_all(text).strip()
     line['normal_form'] = get_normal_form(remove_all(text)).strip()
@@ -65,6 +95,7 @@ def get_pattern(text):
     line['YakeSummarizer'] = YakeSummarizer(text).strip()
     line['BERT_Summarizer'] = BERT_Summarizer(text).strip()
     return line
+
 
 def d2lemmatize(mas):
     crazdelitel = " cr "
@@ -275,6 +306,7 @@ def get_normal_form(words):
     p = morph.parse(words)[0]
     return p.normal_form
 
+
 def send2mongo(data):
     # client = MongoClient('localhost', 27017)
     client = MongoClient('23.111.202.59',
@@ -293,12 +325,13 @@ def send2mongo(data):
     #     list_inn.append(inn)
     # dubl_inn = []
 
+
 if __name__ == '__main__':
     data = "«Два самых важных дня в твоей жизни: день, когда ты появился на свет, и день, когда ты понял зачем!». — Марк Твен"
     # t = get_normal_form(remove_all(data))
     t = get_pattern(data)
     print(t)
-    
+
     # t = remove_all(data)
     # print("remove_all")
     # print(t)
