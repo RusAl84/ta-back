@@ -35,6 +35,9 @@ def uploadae():
         # f.save('./uploads/%s' % secure_filename(fname))
         f.save(filename)
         text = conv.convertJsonMessages2text(filename)
+        d={}
+        d['text']=text
+        d['filename']=filename
     return text
 
 
