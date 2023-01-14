@@ -166,13 +166,13 @@ def tmodel(text, topic_num):
                                             alpha='auto',
                                             per_word_topics=True)
     # #pip install pyLDAvis==2.1.2
-    # import pyLDAvis
-    # import pyLDAvis.gensim
+    import pyLDAvis
+    import pyLDAvis.gensim
 
     # # Visualize the topics
     # # pyLDAvis.enable_notebook()
-    # vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
-    # pyLDAvis.save_html(vis, "static/vis.html")
+    vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
+    pyLDAvis.save_html(vis, "static/vis.html")
     # pyLDAvis.save_json(vis, "static/vis.json")
     # ls=pyLDAvis.utils.NumPyEncoder(skipkeys=False, ensure_ascii=False, check_circular=True, allow_nan=True, sort_keys=False, indent=None, separators=None,  default=None) #encoding='UTF-8',
     # print(ls)
@@ -384,6 +384,3 @@ if __name__ == '__main__':
     #     plot.scatter(x=tsne_lda[:, 0], y=tsne_lda[:, 1], color=mycolors[topic_num])
     #     show(plot)
     # # drawTSNE()
-
-if __name__ == '__main__':
-    
