@@ -384,3 +384,6 @@ if __name__ == '__main__':
     #     plot.scatter(x=tsne_lda[:, 0], y=tsne_lda[:, 1], color=mycolors[topic_num])
     #     show(plot)
     # # drawTSNE()
+
+if __name__ == '__main__':
+    
