@@ -67,6 +67,15 @@ def get_pattern_add():
     print(data)
     return data
 
+@app.route("/find_ae", methods=['POST'])
+def get_pattern_add():
+    msg = request.json
+    print(msg)
+    filename=msg['filename']
+    data = process_nlp.find_ae(filename)
+    print(data)
+    return data
+
 
 @app.route("/clear_db", methods=['get'])
 def clear_db():

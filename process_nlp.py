@@ -380,5 +380,5 @@ if __name__ == '__main__':
     # print(t)
     # data_proc("d:/ml/chat/andromedica.json")
     filename="d:/ml/chat/andromedica.json"
-    ae = find_ae(filename)
-    print(ae)
+    # ae = find_ae(filename)
+    # print(ae)
