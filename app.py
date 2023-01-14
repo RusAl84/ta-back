@@ -7,6 +7,7 @@ import convertQA as conv
 import urllib.request
 import process_nlp
 import config as cfg
+from tmodel import tmodel
 
 app = Flask(__name__)
 CORS(app)
@@ -31,14 +32,15 @@ def uploadae():
         f = request.files.get(fname)
         print(f)
         milliseconds = int(time.time() * 1000)
-        filename = f"./uploads/{milliseconds}.json"
+        filename = str(milliseconds)
         # f.save('./uploads/%s' % secure_filename(fname))
-        f.save(filename)
-        text = conv.convertJsonMessages2text(filename)
+        full_filename=f"./uploads/{milliseconds}.json"
+        f.save(full_filename)
+        text = conv.convertJsonMessages2text(full_filename)
         d={}
         d['text']=text
         d['filename']=filename
-    return text
+    return d
 
 
 @app.route("/get_pattern", methods=['POST'])
@@ -67,23 +69,24 @@ def get_pattern_add():
     print(data)
     return data
 
-@app.route("/find_ae", methods=['POST'])
-def get_pattern_add():
-    msg = request.json
+@app.route('/findae', methods=['POST'])
+def findae():
+#     if request.method == 'POST':
+    msg = str(request.json)
     print(msg)
-    filename=msg['filename']
+    filename=msg
     data = process_nlp.find_ae(filename)
     print(data)
     return data
 
 
-@app.route("/clear_db", methods=['get'])
+@app.route("/clear_db", methods=['GET'])
 def clear_db():
     process_nlp.clear_db()
     return "ok clear_db"
 
 
-@app.route("/load_db", methods=['get'])
+@app.route("/load_db", methods=['GET'])
 def load_db():
     data = process_nlp.load_db()
     return data
@@ -105,6 +108,15 @@ def uploadsa():
         str1 += "<br> <a href=""javascript:history.back()"">Назад</a>"
         return str1
 
+@app.route('/tmodel', methods=['POST'])
+def rtmodel():
+    data = request.json
+    text = data['text']
+    topic_num = data['topic_num']
+    print(text)
+    print(topic_num)
+    tmodel(text, topic_num) 
+    return jsonify("ok"), 200, {'Content-Type': 'application/json'}
 
 # отправка сообщений
 @app.route("/api/Messanger", methods=['POST'])

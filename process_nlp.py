@@ -56,7 +56,7 @@ def clear_db():
 
 
 def data_proc(filename):
-    with open("./uploads/"+filename, "r", encoding="UTF8") as file:
+    with open("./uploads/"+filename+".json", "r", encoding="UTF8") as file:
         content = file.read()
     messages = json.loads(content)
     text = ""
@@ -74,7 +74,7 @@ def data_proc(filename):
         line['date'] = m['date']
         text = m['text']
         line['text'] = text
-        # line['remove_all'] = texts[num]
+        line['remove_all'] = remove_all(text)
         # print(str(texts[num]))
         # print(text)
         str1 = ""
@@ -317,6 +317,7 @@ def get_normal_form(words):
 
 
 def find_ae(filename):
+    
     proc_messages = data_proc(filename)
     data_ae = load_db()
     ae_messages = []
@@ -346,8 +347,16 @@ def find_ae(filename):
     print(indices)
     print(len(indices))
     for ind in indices:
-        line = proc_messages[ind]
-        line['intersections'] = counts[ind]
+        m = proc_messages[ind]
+        if len(m['text'])>30:
+            line = {}
+            line['text'] = m['text']
+            line['date'] = m['date']
+            line['remove_all'] =  m['remove_all']
+            line['normal_form'] =  m['normal_form']
+            line['message_id'] = m['message_id']
+            line['user_id'] = m['user_id']
+            line['reply_message_id'] = m['reply_message_id']
         ae_messages.append(line)   
     jsonstring = json.dumps(ae_messages, ensure_ascii=False)
     name = filename.split(".")[0]
