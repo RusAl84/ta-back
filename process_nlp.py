@@ -316,27 +316,45 @@ def get_normal_form(words):
     return p.normal_form
 
 
-def send2mongo(data):
-    # client = MongoClient('localhost', 27017)
-    client = MongoClient('23.111.202.59',
-                         username='root',
-                         password='MongoPAS1254!',
-                         authSource='admin',
-                         authMechanism='SCRAM-SHA-1')
+def find_ae(filename):
+    proc_messages = data_proc(filename)
+    data_ae = load_db()
+    ae_messages = []
 
-    db = client['RKNN']
-    collection = db.obrnadzor_vishee_vse_regioni_local
-    list_inn = []  # для наших инн с монго
-    # for post in collection.find():
-    #     # print( post)
-    #     inn = post["Сведения об образовательной организации или организации, осуществляющей обучение"]['ИНН']
-    #     print(inn)
-    #     list_inn.append(inn)
-    # dubl_inn = []
+    def calc_intersection_one(text1, text2):
+        count = 0
+        for item1 in text1.split():
+            for item2 in text2.split():
+                if item1 == item2:
+                    count += 1
+        return count
 
-
-def find_text():
-    data_proc()
+    def calc_intersection_all(text1, l2):
+        max_counts = 0
+        for item in l2:
+            current_counts = calc_intersection_one(text1, item['normal_form'])
+            if current_counts > max_counts:
+                max_counts = current_counts
+        return max_counts
+    counts = []
+    for m in proc_messages:
+        intersect = calc_intersection_all(m['normal_form'], data_ae)
+        counts.append(intersect)
+    max_counts=max(counts)
+    indices = [i for i, x in enumerate(counts) if x == max_counts]
+    print(max(counts))
+    print(indices)
+    print(len(indices))
+    for ind in indices:
+        line = proc_messages[ind]
+        line['intersections'] = counts[ind]
+        ae_messages.append(line)   
+    jsonstring = json.dumps(ae_messages, ensure_ascii=False)
+    name = filename.split(".")[0]
+    with open(f"./uploads/{name}_ae.json", "w", encoding="UTF8") as file:
+        file.write(jsonstring)
+    return jsonstring   
+    
 
 
 if __name__ == '__main__':
@@ -361,59 +379,6 @@ if __name__ == '__main__':
     # print("YakeSummarizer")
     # print(t)
     # data_proc("d:/ml/chat/andromedica.json")
-    filename = "1673273897555.json"
-    proc_messages = data_proc(filename)
-    data_ae = load_db()
-    ae_messages = []
-
-    def calc_intersection_one(text1, text2):
-        count = 0
-        for item1 in text1.split():
-            for item2 in text2.split():
-                if item1 == item2:
-                    count += 1
-        return count
-
-    def calc_intersection_all(text1, l2):
-        max_counts = 0
-        for item in l2:
-            current_counts = calc_intersection_one(text1, item['normal_form'])
-            if current_counts > max_counts:
-                max_counts = current_counts
-        return max_counts
-
-    counts = []
-
-    for m in proc_messages:
-        # line = {}
-        # line['date'] = m['date']
-        # line['text'] = m['text']
-        # line['normal_form'] = m['normal_form']
-        # line['message_id'] = m['message_id']
-        # line['user_id'] = m['user_id']
-        # line['reply_message_id'] = m['reply_message_id']
-        intersect = calc_intersection_all(m['normal_form'], data_ae)
-        # line['intersections'] = intersect
-        counts.append(intersect)
-        # ae_messages.append(line)
-    max_counts=max(counts)
-    indices = [i for i, x in enumerate(counts) if x == max_counts]
-    print(max(counts))
-    print(indices)
-    print(len(indices))
-    for ind in indices:
-        line = proc_messages[ind]
-        # line['date'] = m['date']
-        # line['text'] = m['text']
-        # line['normal_form'] = m['normal_form']
-        # line['message_id'] = m['message_id']
-        # line['user_id'] = m['user_id']
-        # line['reply_message_id'] = m['reply_message_id']
-        line['intersections'] = counts[ind]
-        ae_messages.append(line)
-        
-    jsonstring = json.dumps(ae_messages, ensure_ascii=False)
-    name = filename.split(".")[0]
-    with open(f"./uploads/{name}_ae.json", "w", encoding="UTF8") as file:
-        file.write(jsonstring)
-    
+    filename="d:/ml/chat/andromedica.json"
+    ae = find_ae(filename)
+    print(ae)
