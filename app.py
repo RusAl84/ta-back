@@ -19,9 +19,9 @@ def dafault_route():
     return 'API'
 
 
-@app.route('/uploads/<path:path>')
-def send_photo(path):
-    return send_from_directory('uploads', path)
+# @app.route('/uploads/<path:path>')
+# def send_photo(path):
+#     return send_from_directory('uploads', path)
 
 
 @app.route('/uploadae', methods=['POST'])

@@ -35,6 +35,7 @@ def add_data(data):
             file.write(jsonstring)
     return content
 
+
 def load_db():
     import pathlib
     path = pathlib.Path(db_fileName)
@@ -45,15 +46,17 @@ def load_db():
         return content
     else:
         return [{}]
-        
+
+
 def clear_db():
     import pathlib
     path = pathlib.Path(db_fileName)
     if path.exists():
         os.remove(db_fileName)
 
+
 def data_proc(filename):
-    with open(filename, "r", encoding="UTF8") as file:
+    with open("./uploads/"+filename, "r", encoding="UTF8") as file:
         content = file.read()
     messages = json.loads(content)
     text = ""
@@ -71,10 +74,14 @@ def data_proc(filename):
         line['date'] = m['date']
         text = m['text']
         line['text'] = text
-        line['remove_all'] = texts[num]
+        # line['remove_all'] = texts[num]
         # print(str(texts[num]))
         # print(text)
-        line['normal_form'] = ltexts[num]
+        str1 = ""
+        for item in ltexts[num]:
+            if len(str(item)) > 3:
+                str1 += item
+        line['normal_form'] = str(str1).strip()
         # line['get_normal_form'] = get_normal_form(remove_all(data))
         # line['Rake_Summarizer'] = Rake_Summarizer(data)
         # line['YakeSummarizer'] = YakeSummarizer(data)
@@ -87,8 +94,10 @@ def data_proc(filename):
 
     jsonstring = json.dumps(proc_messages, ensure_ascii=False)
     # print(jsonstring)
-    with open("proc_messages.json", "w", encoding="UTF8") as file:
+    name = filename.split(".")[0]
+    with open(f"./uploads/{name}_proc.json", "w", encoding="UTF8") as file:
         file.write(jsonstring)
+    return proc_messages
 
 
 def get_pattern(text):
@@ -267,11 +276,6 @@ def BERT_Summarizer(ttext):
     return result
 
 
-# def TextRank_Summarizer(ttext):
-#     # pip install gensim
-#     return summarize(str(ttext))
-
-
 def Rake_Summarizer(ttext):
     # !pip install nlp-rake
     # !pip install nltk
@@ -330,15 +334,16 @@ def send2mongo(data):
     #     list_inn.append(inn)
     # dubl_inn = []
 
+
 def find_text():
     data_proc()
 
 
 if __name__ == '__main__':
-    data = "«Два самых важных дня в твоей жизни: день, когда ты появился на свет, и день, когда ты понял зачем!». — Марк Твен"
-    # t = get_normal_form(remove_all(data))
-    t = get_pattern(data)
-    print(t)
+    # data = "«Два самых важных дня в твоей жизни: день, когда ты появился на свет, и день, когда ты понял зачем!». — Марк Твен"
+    # # t = get_normal_form(remove_all(data))
+    # t = get_pattern(data)
+    # print(t)
 
     # t = remove_all(data)
     # print("remove_all")
@@ -356,3 +361,59 @@ if __name__ == '__main__':
     # print("YakeSummarizer")
     # print(t)
     # data_proc("d:/ml/chat/andromedica.json")
+    filename = "1673273897555.json"
+    proc_messages = data_proc(filename)
+    data_ae = load_db()
+    ae_messages = []
+
+    def calc_intersection_one(text1, text2):
+        count = 0
+        for item1 in text1.split():
+            for item2 in text2.split():
+                if item1 == item2:
+                    count += 1
+        return count
+
+    def calc_intersection_all(text1, l2):
+        max_counts = 0
+        for item in l2:
+            current_counts = calc_intersection_one(text1, item['normal_form'])
+            if current_counts > max_counts:
+                max_counts = current_counts
+        return max_counts
+
+    counts = []
+
+    for m in proc_messages:
+        # line = {}
+        # line['date'] = m['date']
+        # line['text'] = m['text']
+        # line['normal_form'] = m['normal_form']
+        # line['message_id'] = m['message_id']
+        # line['user_id'] = m['user_id']
+        # line['reply_message_id'] = m['reply_message_id']
+        intersect = calc_intersection_all(m['normal_form'], data_ae)
+        # line['intersections'] = intersect
+        counts.append(intersect)
+        # ae_messages.append(line)
+    max_counts=max(counts)
+    indices = [i for i, x in enumerate(counts) if x == max_counts]
+    print(max(counts))
+    print(indices)
+    print(len(indices))
+    for ind in indices:
+        line = proc_messages[ind]
+        # line['date'] = m['date']
+        # line['text'] = m['text']
+        # line['normal_form'] = m['normal_form']
+        # line['message_id'] = m['message_id']
+        # line['user_id'] = m['user_id']
+        # line['reply_message_id'] = m['reply_message_id']
+        line['intersections'] = counts[ind]
+        ae_messages.append(line)
+        
+    jsonstring = json.dumps(ae_messages, ensure_ascii=False)
+    name = filename.split(".")[0]
+    with open(f"./uploads/{name}_ae.json", "w", encoding="UTF8") as file:
+        file.write(jsonstring)
+    
