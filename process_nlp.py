@@ -330,6 +330,9 @@ def send2mongo(data):
     #     list_inn.append(inn)
     # dubl_inn = []
 
+def find_text():
+    data_proc()
+
 
 if __name__ == '__main__':
     data = "«Два самых важных дня в твоей жизни: день, когда ты появился на свет, и день, когда ты понял зачем!». — Марк Твен"
